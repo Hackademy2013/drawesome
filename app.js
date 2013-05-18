@@ -42,7 +42,7 @@ app.get('/', function(req, res){
 });
 
 app.listen(3000);
-console.log("DRAWesome server started on port %d in %s mode", app.address().port, app.settings.env);
+// console.log("DRAWesome server started on port %d in %s mode", app.address().port, app.settings.env);
 
 var clients = [];
 var count = 0; // How many connected clients
@@ -62,9 +62,9 @@ io.sockets.on('connection', function(socket)
       console.log("Client %s has joined. We now have %d artists on the server.", client.name, count);
 
       if (count > 1) {
-         socket.emit('test', "Greetings, " + client.name + "! You have joined\n" + listClients() + ".");
+         socket.emit('test', ("Greetings, " + client.name + "! You have joined\n" + listClients() + "."));
       } else {
-         socket.emit('test', "Greetings, " + client.name + "!");
+         socket.emit('test', ("Greetings, " + client.name + "!"));
       }
       
       socket.emit('connect_1', client);
@@ -74,10 +74,10 @@ io.sockets.on('connection', function(socket)
    socket.on('disconnect', function() {
       var idx = clientIdx(socket.id);
       count--;
-      console.log("The client \"" + clients[idx].name + "\" has left the building. Only " + count + "remain.");
+      console.log("The client \"" + clients[idx].name + "\" has left the building. Only " + count + " remain.");
       
       for (; idx < count; idx++) {
-         clients[idx] = clients[idx + 1]
+         clients[idx] = clients[idx + 1];
       }
    });
 });
