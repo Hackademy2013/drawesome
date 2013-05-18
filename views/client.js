@@ -3,7 +3,8 @@ var canvasElem;
 var traceable = false;
 var drawing = false;
 var traceQueue = new Array();
-var NEGLIGIBLE_MOVEMENT = 7;
+var NEGLIGIBLE_MOVEMENT = 15;
+var SUBMIT_DELAY = 2;
 
 jQuery(document).ready(function(){
   canvasElem = $('#drawesomeCanvas');
@@ -88,18 +89,15 @@ function recordMouseCoord(mouse, cElement)
 	
 }
 
-//function onMouseDown
-// Event: Purpose is to call recordMouseCoord
+//function receiveTraceFromServer(ID, traceQueue)
+//each ID has it's own traceQueue
+//drawTraceFromServer
 
-//function onMouseUp
-// Event: Purpose is to call 
+//function drawTraceFromServer
+//foreach draw lines from first point to each sequential point
+//shift used points
 
-//function recordMouseCoord/startMouseTrail
-// Store coords in a queue, FIFO. Started by onMouseDown.
 
-//function endMouseTrail 
-//Stop recording, called by onMouseUp
-
-//function submitMouseTrail
+//function submitTraceToServer //triggered by time.Events every SUBMIT_DELAY seconds
 // send mouseTrail queue to server, 
 // pull X from top and wait Xsecs before sending again
