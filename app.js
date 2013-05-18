@@ -54,6 +54,7 @@ io.sockets.on('connection', function(socket)
    socket.on('client_connected', function(client)
    {
       client.id = socket.id;
+      client.socket = socket;
 
       // save this client
       clients[count] = client;
@@ -62,13 +63,25 @@ io.sockets.on('connection', function(socket)
       console.log("Client %s has joined. We now have %d artists on the server.", client.name, count);
 
       if (count > 1) {
-         socket.emit('message', ("Greetings, " + client.name + "! Here's who's drawing now:\n" + listClients() + "."));
+         socket.emit('message', {id: socket.id, text: ("Greetings, " + client.name + "! Here's who's drawing now:\n" + listClients() + ".")});
       } else {
-         socket.emit('message', ("Greetings, " + client.name + "!"));
+         socket.emit('message', {id: socket.id, text: ("Greetings, " + client.name + "! You are the first person to work on this canvas.")});
       }
+      
+      // for (var i = 0; i < count; i++) {
+         // clients[i].socket.emit('message', "You are client " + i);
+      // }
+
+      io.sockets.emit('message', {id: socket.id, text: client.name}); 
       
       socket.emit('connect_1', client);
       io.sockets.emit('load', clients);
+   });
+   
+   socket.on('points_c2s', function(points)) {
+      //repackage and rebroadcast the points
+      io.sockets.emit('points_s2c', points);
+      
    });
    
    socket.on('disconnect', function() {
@@ -76,6 +89,8 @@ io.sockets.on('connection', function(socket)
       count--;
       console.log("The client \"" + clients[idx].name + "\" has left the building. Only " + count + " remain.");
       
+      // This is probably really crappy Javascript code, sorry
+      // In my mind clients in a 
       for (; idx < count; idx++) {
          clients[idx] = clients[idx + 1];
       }
