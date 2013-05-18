@@ -47,10 +47,9 @@ script
   }
   
   
-  socket.on('test', function(str)
+  socket.on('message', function(str)
   {
-      console.log("WHAT IS GOING ON?");
-      alert("Greetings, " + str + "! This is a placeholder for now...");
+      alert(str);
   });
   
   socket.on('mark', function(sq)
