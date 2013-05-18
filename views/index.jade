@@ -10,7 +10,6 @@ script
   var startGame = false;
   var canvas = document.createElement('canvas');
 
-<<<<<<< HEAD
 function createContext(width, height) {
 var canvas = document.createElement('canvas');
 canvas.width=500;
@@ -20,15 +19,6 @@ canvas.fillStyle='#8ED6FF';
 canvas.fill();
 }
 
-=======
-  function createContext(width, height) {
-     var canvas = document.createElement('canvas');
-     canvas.width=500;
-     canvas.height=300;
-     return canvas.getContext("2d");
-  }
-   
->>>>>>> 756271b88c34508df43134f2108e4037be9236b3
   function mark(cords)
   {
     if(startGame)
@@ -56,9 +46,10 @@ canvas.fill();
   }
   
   
-  socket.on('message', function(str)
+  socket.on('test', function(str)
   {
-      alert(str);
+      console.log("WHAT IS GOING ON?");
+      alert("Greetings, %s! This is a placeholder for now...", str);
   });
   
   socket.on('mark', function(sq)
