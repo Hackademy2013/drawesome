@@ -8,6 +8,7 @@ var io = require('socket.io');
 var app = module.exports = express.createServer();
 
 var io = io.listen(app);
+
 // Configuration
 
 io.set('log level', 1); // Turn off annoying polling
