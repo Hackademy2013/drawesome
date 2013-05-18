@@ -1,20 +1,46 @@
 //Capture canvas element, this to reference html file? or //document?
 var canvasElem;
-
-window.addEventListener('load', function () {
-	canvasElem = this.getElementByID('drawesomeCanvas');
-	if(!canvasElem || !canvasElem.getContext) {
-		this.return;
-	}
-
-	//Get context and exit if unavailible
-	var context = elem.getContext('2d');
-	if (!context || !context.drawImage) {
-	  this.return;	
-	}
-}, false);
-
-//canvasElem.addEventListener(
+var traceable = false;
+jQuery(document).ready(function(){
+  canvasElem = $('#drawesomeCanvas');
+  
+  //Check if referenceing the canvas
+  if(canvasElem.length > 0) {
+    //alert('woohoo');
+  }
+  else {
+    alert('boo');
+  }
+  
+  $(canvasElem).on({
+	  mouseenter: function(){ //begin to be traceable
+	    traceable = true
+	  },
+	  mouseleave: function() { //no longer traceable 
+	    traceable = false;
+	  },
+	  mousedown: function(e){ //call recordMouseCoord
+	    recordMouseCoord(e, canvasElem);
+	  }
+  });
+  
+  
+  //Old Code, constant event alerts to movement
+  /*$(canvasElem).mousedown(function(e) {
+    $(canvasElem).mousemove(function (e) {
+	  tracking = true;
+	  recordMouseCoord(e);	
+	});
+  });
+  $(canvasElem).mouseup(function(e) {
+	  tracking = false;*/
+});
+    
+function recordMouseCoord(mouse, cElement)
+{
+  alert("Mouse Coord: [" +(mouse.pageX) + 
+    ", " + (mouse.pageY) + "]");
+}
 
 //function onMouseDown
 // Event: Purpose is to call recordMouseCoord
@@ -31,4 +57,3 @@ window.addEventListener('load', function () {
 //function submitMouseTrail
 // send mouseTrail queue to server, 
 // pull X from top and wait Xsecs before sending again
-
