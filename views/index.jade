@@ -13,12 +13,13 @@ script
   var startGame = false;
   var canvas = document.createElement('canvas');
 
-function createContext(width, height) {
-var canvas = document.createElement('canvas');
-canvas.width=500;
-canvas.height=300;
-return canvas.getContext("2d");
-}
+  function createContext(width, height) {
+     var canvas = document.createElement('canvas');
+     canvas.width=500;
+     canvas.height=300;
+     return canvas.getContext("2d");
+  }
+   
   function mark(cords)
   {
     if(startGame)
