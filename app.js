@@ -36,37 +36,21 @@ app.get('/', function(req, res){
 });
 
 app.listen(3000);
-console.log("Tic-Tac-Toe server started on port %d in %s mode", app.address().port, app.settings.env);
+console.log("Drawesome server started on port %d in %s mode", app.address().port, app.settings.env);
 
-var xo = 'x'; // change to whats available.
-var o = false;
-var m_players = [];
-var i = 0; // How many connected players.
-
-var grid = {
-  '0-0': '', '0-1':'', '0-2':'',
-  '1-0': '', '1-1':'', '1-2':'',
-  '2-0': '', '2-1':'', '2-2': ''
-}
+var clients = [];
+var i = 0; // How many connected clients
 
 io.sockets.on('connection', function(socket)
 {
-  console.log(grid);
+  console.log("We had a connection from socket id: " + socket.id);
   
   socket.on('client_connected', function(player)
   {
     player.id = socket.id;
     player.mark = xo;
-    
-    if(xo == 'x' && o == false) 
-    {
-      xo = 'o';
-      o = true;
-    }
-    else
-    {
-      xo = 'spectator';
-    }
+	console.log("Client connected: " + socket.id);
+
     m_players[i] = player;
     i++;
     
@@ -79,6 +63,7 @@ io.sockets.on('connection', function(socket)
   {
     var n = 0;
     coords = coords.replace("#",'');
+	
     
     // ToDo: Send in players mark instead of ugly loop
     while (n < m_players.length)
