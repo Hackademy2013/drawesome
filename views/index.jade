@@ -1,4 +1,4 @@
-h1 Tic-Tac-Toe
+h1 Drawesome!
 div(style="width:100%;height:100%; border:1px dashed #000;min-height: 50px;overflow:hidden;margin:auto;", id="zone")
   span(style="float:left")
     h1(id='stats')
@@ -53,24 +53,16 @@ script
     }
   }
   
+  
+  socket.on('test', function(str)
+  {
+      console.log("WHAT IS GOING ON?");
+      alert("Greetings, %s! This is a placeholder for now...", str);
+  });
+  
   socket.on('mark', function(sq)
   {
-      sq = '#' + sq;
-      if($(sq).html() == '')
-      {
-        if( xo == 'x')
-        {
-          $(sq).html('X');
-          xo = 'o';
-          $(sq).css('color','red');
-        }
-        else
-        {
-          $(sq).html('O');
-          $(sq).css('color','blue');
-          xo = 'x';
-        }  
-     }
+
   });
   
   $('#0-0').click(function()
