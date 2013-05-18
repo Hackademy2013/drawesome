@@ -1,0 +1,19 @@
+This is for DRAWesome
+
+Goals:
+*SERVER
+ Server to support multiple connects
+
+
+*CLIENT
+ Canvas Drawing
+  onMouseMove
+  onMouseDown
+  onMouseUp
+
+
+Stretch Goals:
+Color selection, shadows, 
+Layers(multiple canvas objects)
+Save drawings
+
