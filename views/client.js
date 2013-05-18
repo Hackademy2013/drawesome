@@ -1,6 +1,7 @@
 //Capture canvas element, this to reference html file? or //document?
 var canvasElem;
 var traceable = false;
+var traceQueue = new Array();
 jQuery(document).ready(function(){
   canvasElem = $('#drawesomeCanvas');
   
@@ -38,8 +39,16 @@ jQuery(document).ready(function(){
     
 function recordMouseCoord(mouse, cElement)
 {
-  alert("Mouse Coord: [" +(mouse.pageX) + 
-    ", " + (mouse.pageY) + "]");
+  traceQueue.push({x: mouse.pageX, y: mouse.pageY});
+  for(var i=0; i<traceQueue.length; ++i) {
+    alert("Mouse Coord: [" +(traceQueue[i].x) + 
+    ", " + (traceQueue[i].y) + "]");
+	}
+  
+  
+  //alert("Mouse Coord: [" +(mouse.pageX) + 
+  //  ", " + (mouse.pageY) + "]");
+	
 }
 
 //function onMouseDown
