@@ -5,7 +5,8 @@
   "main": "app.js",
   "dependencies": {
       "express": "2.4.3", 
-      "jade": ">= 0.0.1"
+      "jade": ">= 0.0.1",
+	  "socket.io": "0.9.x"
   },
   "repository": "git://github.com/255/drawesome.git",
   "author": "Wyatt, Kavya, & James",
