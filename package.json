@@ -4,9 +4,9 @@
   "description": "DRAWesome, a super awesome collaborative drawing web app. Product from Dyn HackAdemy",
   "main": "app.js",
   "dependencies": {
-      "express": "2.4.3"
-    , "jade": ">= 0.0.1" 
-  }	
+      "express": "2.4.3", 
+      "jade": ">= 0.0.1"
+  },
   "repository": "git://github.com/255/drawesome.git",
   "author": "Wyatt, Kavya, & James",
   "license": "BSD"
