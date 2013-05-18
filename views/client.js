@@ -1,5 +1,6 @@
 //Capture canvas element, this to reference html file? or //document?
 var canvasElem;
+var canvasContext;
 var traceable = false;
 var drawing = false;
 var traceQueue = new Array();
@@ -7,15 +8,15 @@ var NEGLIGIBLE_MOVEMENT = 15;
 var SUBMIT_DELAY = 2;
 
 jQuery(document).ready(function(){
-  canvasElem = $('#drawesomeCanvas');
+  //canvasElem = $('#drawesomeCanvas');
+  canvasElem = document.getElementById("drawesomeCanvas");
+  canvasContext = canvasElem.getContext("2d");
   
   //Check if referenceing the canvas
   if(canvasElem.length > 0) {
-    //alert('woohoo');
-  }
-  else {
-    alert('boo');
-  }
+    alert('woohoo');
+	}
+  
   $(document).mouseup()
   $(canvasElem).on({
 	  mouseenter: function(){ //begin to be traceable
@@ -39,17 +40,6 @@ jQuery(document).ready(function(){
 	    recordMouseCoord(e, canvasElem);
 	  }
   });
-  
-  
-  //Old Code, constant event alerts to movement
-  /*$(canvasElem).mousedown(function(e) {
-    $(canvasElem).mousemove(function (e) {
-	  tracking = true;
-	  recordMouseCoord(e);	
-	});
-  });
-  $(canvasElem).mouseup(function(e) {
-	  tracking = false;*/
 });
     
 function recordMouseCoord(mouse, cElement)
@@ -75,17 +65,21 @@ function recordMouseCoord(mouse, cElement)
 	  traceQueue.push({X: mouse.pageX, Y: mouse.pageY});
 	}
 	
-    console.log(traceQueue[traceQueue.length-1]);
-	console.log(mouse.pageX + " " + mouse.pageY);
-	console.log("X: Min: " +(traceQueue[traceQueue.length-1].X - NEGLIGIBLE_MOVEMENT) + " Max: " + (traceQueue[traceQueue.length-1].X + NEGLIGIBLE_MOVEMENT));
-	console.log("Y: Min: " +(traceQueue[traceQueue.length-1].Y - NEGLIGIBLE_MOVEMENT) + " Max: " + (traceQueue[traceQueue.length-1].Y + NEGLIGIBLE_MOVEMENT));
-	//console.log((traceQueue[traceQueue.length-1].Y));
-	console.log(traceQueue.length);
+	if(traceQueue.length >= 2)
+	{
+	  canvasContext.moveTo(traceQueue[0].X, traceQueue[0].Y);
+	  console.log("Moving to: " + traceQueue[0].X + ", " + traceQueue[0].Y);
+	  canvasContext.lineTo(traceQueue[1].X, traceQueue[1].Y);
+	  console.log("Lining to: " + traceQueue[1].X + ", " + traceQueue[1].Y);
+	  canvasContext.stroke();
+	  var lastLocalRemoved = traceQueue.shift();
+	}
+    //console.log(traceQueue[traceQueue.length-1]);
+	//console.log(mouse.pageX + " " + mouse.pageY);
+	//console.log("X: Min: " +(traceQueue[traceQueue.length-1].X - NEGLIGIBLE_MOVEMENT) + " Max: " + (traceQueue[traceQueue.length-1].X + NEGLIGIBLE_MOVEMENT));
+	//console.log("Y: Min: " +(traceQueue[traceQueue.length-1].Y - NEGLIGIBLE_MOVEMENT) + " Max: " + (traceQueue[traceQueue.length-1].Y + NEGLIGIBLE_MOVEMENT));
+	//console.log(traceQueue.length);
   }
-  
-  
-  //alert("Mouse Coord: [" +(mouse.pageX) + 
-  //  ", " + (mouse.pageY) + "]");
 	
 }
 
