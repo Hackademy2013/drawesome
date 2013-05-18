@@ -2,8 +2,8 @@
  *              DRAWsome               *
  *                                     *
  *        by James Kilian,             *
- *           Wyatt Hepler              *
- *           Kavya Nagaraj             *
+ *           Wyatt Hepler,             *
+ *         & Kavya Nagaraj             *
  *                                     *
 \**************************************/
 
@@ -62,9 +62,9 @@ io.sockets.on('connection', function(socket)
       console.log("Client %s has joined. We now have %d artists on the server.", client.name, count);
 
       if (count > 1) {
-         socket.emit('test', ("Greetings, " + client.name + "! You have joined\n" + listClients() + "."));
+         socket.emit('message', ("Greetings, " + client.name + "! Here's who's drawing now:\n" + listClients() + "."));
       } else {
-         socket.emit('test', ("Greetings, " + client.name + "!"));
+         socket.emit('message', ("Greetings, " + client.name + "!"));
       }
       
       socket.emit('connect_1', client);
