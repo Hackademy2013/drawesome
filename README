@@ -13,7 +13,10 @@ Goals:
 
 
 Stretch Goals:
-Color selection, shadows, 
-Layers(multiple canvas objects)
-Save drawings
+1:Color selection, shadows, 
+1:a. Layers(multiple canvas objects)
+
+2: Save drawings and pull saves from db
+
+3: Flckr api to search images and open to have the user trace over
 
