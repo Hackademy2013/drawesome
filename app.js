@@ -53,7 +53,7 @@ io.sockets.on('connection', function(socket)
     clients[i] = player;
     i++;
     
-   console.log("Player " + player.name + " has joined." + 
+   console.log("Player " + player.name + " has joined. " + 
                "We now have " + i + " artists on the server.");
 	
    socket.emit('test', player.name);

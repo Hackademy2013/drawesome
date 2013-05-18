@@ -56,27 +56,13 @@ script
   
   socket.on('test', function(str)
   {
-      
-  }
+      console.log("WHAT IS GOING ON?");
+      alert("Greetings, %s! This is a placeholder for now...", str);
+  });
   
   socket.on('mark', function(sq)
   {
-      sq = '#' + sq;
-      if($(sq).html() == '')
-      {
-        if( xo == 'x')
-        {
-          $(sq).html('X');
-          xo = 'o';
-          $(sq).css('color','red');
-        }
-        else
-        {
-          $(sq).html('O');
-          $(sq).css('color','blue');
-          xo = 'x';
-        }  
-     }
+
   });
   
   $('#0-0').click(function()
