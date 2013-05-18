@@ -12,7 +12,7 @@ var io = io.listen(app);
 // Configuration
 
 io.set('log level', 1); // Turn off annoying polling
-app.configure(function(){
+app.configure(function() {
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
   app.use(express.bodyParser());
