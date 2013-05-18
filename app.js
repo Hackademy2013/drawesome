@@ -36,7 +36,7 @@ app.get('/', function(req, res){
 });
 
 app.listen(3000);
-console.log("Drawesome server started on port %d in %s mode", app.address().port, app.settings.env);
+console.log("DRAWesome server started on port %d in %s mode", app.address().port, app.settings.env);
 
 var clients = [];
 var i = 0; // How many connected clients
@@ -48,15 +48,18 @@ io.sockets.on('connection', function(socket)
   socket.on('client_connected', function(player)
   {
     player.id = socket.id;
-    player.mark = xo;
-	console.log("Client connected: " + socket.id);
+   console.log("Client connected: " + socket.id);
 
-    m_players[i] = player;
+    clients[i] = player;
     i++;
     
+   console.log("Player " + player.name + " has joined." + 
+               "We now have " + i + " artists on the server.");
+	
+   socket.emit('test', player.name);
+   
     socket.emit('connect_1', player);
-    //socket.emit('draw_board', board);
-    io.sockets.emit('load',m_players);
+    io.sockets.emit('load', clients);
   });
   
   socket.on('process_move', function(coords)
@@ -66,34 +69,20 @@ io.sockets.on('connection', function(socket)
 	
     
     // ToDo: Send in players mark instead of ugly loop
-    while (n < m_players.length)
+    while (n < clients.length)
     {
-      if (m_players[n].id == socket.id)
+      if (clients[n].id == socket.id)
       {
-        grid[coords] = m_players[n].mark;
+        grid[coords] = clients[n].mark;
       }
       n++;
     }
     
-    console.log(grid);
     // Update clients with the move
     io.sockets.emit('mark', coords);
     
     // Win check
-    if( (grid['0-0'] == grid['0-1'] && grid['0-1'] == grid['0-2'] && grid['0-0'] != '') || 
-    (grid['1-0'] == grid['1-1'] && grid['1-1'] == grid['1-2'] && grid['1-0'] != '') ||
-    (grid['2-0'] == grid['2-1'] && grid['2-1'] == grid['2-2'] && grid['2-0'] != '') ||
-    
-    (grid['0-0'] == grid['1-0'] && grid['1-0'] == grid['2-0'] && grid['0-0'] != '') ||
-    (grid['0-1'] == grid['1-1'] && grid['1-1'] == grid['2-1'] && grid['0-1'] != '') ||
-    (grid['0-2'] == grid['1-2'] && grid['1-2'] == grid['2-2'] && grid['0-2'] != '') ||
-    
-    (grid['0-0'] == grid['1-1'] && grid['1-1'] == grid['2-2'] && grid['0-0'] != '') ||
-    (grid['2-0'] == grid['1-1'] && grid['1-1'] == grid['0-2'] && grid['2-0'] != '') 
-    )
-    {
-      io.sockets.emit('gameover', xo);
-    }
+
   });
   
   socket.on('disconnect', function()
@@ -102,33 +91,33 @@ io.sockets.on('connection', function(socket)
      var n = 0;
      var tmp = [];
 
-     while (n < m_players.length)
+     while (n < clients.length)
      {
-       if (m_players[j].id == socket.id)
+       if (clients[j].id == socket.id)
        {
-         if(m_players[j].mark == 'o')
+         if(clients[j].mark == 'o')
          {
            xo = 'o';
            o = false;
          }
-         if(m_players[j].mark == 'x')
+         if(clients[j].mark == 'x')
          {
            xo = 'x';
          }
      	   n++;
      	 }
      	 
-     	 if (n < m_players.length)
+     	 if (n < clients.length)
      	 {
-     	   tmp[j] = m_players[n];
+     	   tmp[j] = clients[n];
      	   j++;
      	   n++;
      	  }
      	}
      	
-     	m_players = tmp;
+     	clients = tmp;
      	i = j;
-      io.sockets.emit('load', m_players);
+      io.sockets.emit('load', clients);
    });
   
 });
