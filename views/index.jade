@@ -43,10 +43,10 @@ script
   }
   
   
-  socket.on('message', function(str)
-  {
-      console.log("message received: it says %s", str);
-      alert(str);
+  socket.on('message', function(message) {
+      console.log("message received from %s: it says %s", message.id, message.text);
+      //if (message.origin != player.id)
+         alert(message.text);
   });
   
   socket.on('mark', function(sq)
@@ -123,8 +123,6 @@ script
   socket.on('connect_1', function(data){
     player.id = data.id;
     player.name = data.name;
-    player.mark = data.mark;
-
   });
   
   socket.on('gameover', function(data){
