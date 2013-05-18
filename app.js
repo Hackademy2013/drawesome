@@ -42,7 +42,7 @@ app.get('/', function(req, res){
 });
 
 app.listen(3000);
-console.log("DRAWesome server started on port %d in %s mode", app.address().port, app.settings.env);
+//console.log("DRAWesome server started on port %d in %s mode", app.address().port, app.settings.env);
 
 var clients = [];
 var count = 0; // How many connected clients
