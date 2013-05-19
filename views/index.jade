@@ -9,43 +9,21 @@ h1 Drawesome!
         canvas.width=500;
         canvas.height=300;
         return canvas.getContext("2d");
-     }
+     };
 
      socket.on('message', function(message) {
          console.log("message received from %s: it says %s", message.id, message.text);
-         //if (message.origin != player.id)
+         //if (message.origin != client.id)
             alert(message.text);
+         
+         alert("HEY! YOUR ID IS: " + client.id + "\n" +
+               "Your color is :  " + client.color.r + client.color.g + client.color.b);
+     });
+
+     socket.on('sync_client', function(info) {
+       console.log("Updating with info from server");
+       client.id = info.id;
+       client.color = info.color;
      });
      
-     
-     socket.on('load', function(data)
-     {
-        var x = 0;
-        var showedX, showedO = false;
-        console.log(data);
-        while( x < data.length )
-        {
-          if(data[x].mark == 'x')
-          {
-            $("#p1").html(data[x].name + ": <span style='color:red'>X</span>");
-            showedX = true;
-          }
-          else if(data[x].mark == 'o')
-          {
-            $("#p2").html(data[x].name + ": <span style='color:blue'>O</span>");
-            showedO = true;
-          }
-          x++;
-        }
-        
-        if(!showedX) $("#p1").html("Waiting...");
-        if(!showedO) $("#p2").html("Waiting...");
-        
-        if(showedX && showedO) startGame = true;
-        
-     });
-     
-     socket.on('connect_1', function(data){
-       player.id = data.id;
-       player.name = data.name;
-     });
+     socket.on('points_s2c')

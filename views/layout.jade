@@ -8,17 +8,17 @@ html
     script
      var socket = io.connect('http://localhost:3000');
      
-     var player = {
-       id: 0,
+     var client = {
+       id: "",
        name: prompt("Type your name:"),
-       socket: null
+       color: null
      }
      
-     if (player.name == '')
-       player.name = 'Anonymous Coward';
+     if (client.name == '')
+       client.name = 'Anonymous Coward';
      
        socket.on('connect', function () {
-       socket.emit('client_connected', player);
+         socket.emit('client_connected', client);
      });
      
      
