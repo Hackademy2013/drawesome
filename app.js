@@ -1,11 +1,11 @@
-/**************************************\
- *              DRAWsome               *
- *                                     *
- *        by James Kilian,             *
- *           Wyatt Hepler,             *
- *         & Kavya Nagaraj             *
- *                                     *
-\**************************************/
+/***********************************\
+ *              DRAWsome            *
+ *                                  *
+ *        by James Kilian,          *
+ *           Wyatt Hepler,          *
+ *         & Kavya Nagaraj          *
+ *                                  *
+\***********************************/
 
 // Dependencies
 var express = require('express'),
@@ -36,23 +36,19 @@ app.configure('production', function() {
 });
 
 // Routes
-
 app.get('/', function(req, res){
    res.render('index');
 });
 
 app.listen(3000);
-// console.log("DRAWesome server started on port %d in %s mode", app.address().port, app.settings.env);
 
 var clients = [];
 var count = 0; // How many connected clients
 
 io.sockets.on('connection', function(socket) {
-   console.log("Socket id: " + socket.id + " wants to join the fun.");
    
    socket.on('client_connected', function(client) {
       client.id = socket.id;
-      //client.name = client.name;
       client.color = COLORS[hash(client.id) % COLORS.length];
 
       // keep track of this client
@@ -76,14 +72,18 @@ io.sockets.on('connection', function(socket) {
    
    socket.on('clientToserver', function(points) {
       //repackage and rebroadcast the points
-      console.log("Data received from ", clients[clientIdx(socket.id)]);
-      io.sockets.emit('serverToClient', points);      
+      // console.log("Data received from ", clients[clientIdx(socket.id)]);
+      io.sockets.emit('serverToClient', {pts: points, col: clients[clientIdx(socket.id)].color});      
+   });
+   
+   socket.on('chat', function(message) {
+      io.sockets.emit('chat_update', message);
    });
    
    socket.on('disconnect', function() {
       var idx = clientIdx(socket.id);
       count--;
-      console.log("The client \"" + clients[idx].name + "\" has left the building. Only " + count + " remain.");
+      console.log("The client \"" + clients[idx].name + "\" has left the party. A mere " + count + " users remain.");
       
       // This is probably really crappy Javascript code, sorry
       for (; idx < count; idx++) {
@@ -118,7 +118,7 @@ function hash(str) {
    return code;
 }
 
-//epic colors table
+//epic colors table. Thank you, Wikipedia
 var COLORS = [
                {r: 255, g: 192, b: 203},
                {r: 255, g: 182, b: 193},

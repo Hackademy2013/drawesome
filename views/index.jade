@@ -1,5 +1,6 @@
 h1 Drawesome!
 canvas(id='drawesomeCanvas',width='500',height='500',style='border:4px solid #000000;')
+
    script
      socket.on('message', function(message) {
          // console.log("message received from %s: it says %s", message.id, message.text);
@@ -17,7 +18,7 @@ canvas(id='drawesomeCanvas',width='500',height='500',style='border:4px solid #00
       //Client-side code for traceing, captureing, submitting, and drawing
 
       //Constants
-      var NEGLIGIBLE_MOVEMENT = 7;
+      var NEGLIGIBLE_MOVEMENT = 1;
       var OFFSET_TOP = 130;
       var OFFSET_LEFT = 60;
       //var SUBMIT_DELAY = 2000;
@@ -28,7 +29,6 @@ canvas(id='drawesomeCanvas',width='500',height='500',style='border:4px solid #00
       var traceable = false;
       var drawing = false;
       //Local information
-      var myID, myColor;
       var myTraceQueue = new Array();
       //Artist's Information sent over from server
       var fellowArtists = new Array();
@@ -94,7 +94,6 @@ canvas(id='drawesomeCanvas',width='500',height='500',style='border:4px solid #00
           else if(mouse.pageY - OFFSET_TOP <= (myTraceQueue[myTraceQueue.length-1].Y - NEGLIGIBLE_MOVEMENT) ) {
             myTraceQueue.push({X: mouse.pageX - OFFSET_LEFT , Y: mouse.pageY - OFFSET_TOP});
           }
-
           drawSubmitTrace();
         }
       }
@@ -102,15 +101,17 @@ canvas(id='drawesomeCanvas',width='500',height='500',style='border:4px solid #00
       function drawSubmitTrace() {
          if(myTraceQueue.length >= 2)
          {
+           canvasContext.beginPath();
            canvasContext.strokeStyle = colorToHex(client.color);
            canvasContext.moveTo(myTraceQueue[0].X, myTraceQueue[0].Y);
            // console.log("Moving to: " + myTraceQueue[0].X + ", " + myTraceQueue[0].Y);
            canvasContext.lineTo(myTraceQueue[1].X, myTraceQueue[1].Y);
            // console.log("Lining to: " + myTraceQueue[1].X + ", " + myTraceQueue[1].Y);
            canvasContext.stroke();
-
+           canvasContext.closePath();
+         
           //Submit traceQueue[0] to server
-          socket.emit('clientToserver', myTraceQueue[0]);
+          socket.emit('clientToserver', [myTraceQueue[0], myTraceQueue[1]]);
 
            var lastLocalRemoved = myTraceQueue.shift();
          }
@@ -120,17 +121,28 @@ canvas(id='drawesomeCanvas',width='500',height='500',style='border:4px solid #00
          //console.log("Y: Min: " +(traceQueue[traceQueue.length-1].Y - NEGLIGIBLE_MOVEMENT) + " Max: " + (traceQueue[traceQueue.length-1].Y + NEGLIGIBLE_MOVEMENT));
          //console.log(traceQueue.length);
       }
-      // TODO
-      //Capture the ID and Color info from the server
-      function getThisClientInfo(ID, color) {
-        myID = ID;
-        myColor = color;
+      
+      socket.on('serverToClient', function(data) {
+         drawTrace(data.pts, data.col);
+      });
+      
+      function drawTrace(traceQueue, color) {
+         if(traceQueue.length >= 2)
+         {
+           canvasContext.beginPath();
+           canvasContext.strokeStyle = colorToHex(color);
+           canvasContext.moveTo(traceQueue[0].X, traceQueue[0].Y);
+           canvasContext.lineTo(traceQueue[1].X, traceQueue[1].Y);
+           canvasContext.stroke();
+           canvasContext.closePath();
+         }
       }
+
       //Capture TraceQueue chunks from server, if there is a match then concat the arrays
       //if there is not a match, add it to the array under the new ID
       function receiveTraceFromServer(ID, color, newTraceQueue) {
         var found = false;
-        if(ID != myID) //Make sure the array isn't storing this client's traceQueues
+        if(ID != client.id) //Make sure the array isn't storing this client's traceQueues
         {
           if(fellowArtists.length > 0) {
             fellowArtists.forEach( function(artist, index, array)  {
