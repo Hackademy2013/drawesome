@@ -52,7 +52,7 @@ io.sockets.on('connection', function(socket) {
    
    socket.on('client_connected', function(client) {
       client.id = socket.id;
-      
+      //client.name = client.name;
       client.color = COLORS[hash(client.id) % COLORS.length];
 
       // keep track of this client
@@ -74,9 +74,10 @@ io.sockets.on('connection', function(socket) {
       io.sockets.emit('message', {id: socket.id, text: client.name});
    });
    
-   socket.on('points_c2s', function(points) {
+   socket.on('clientToserver', function(points) {
       //repackage and rebroadcast the points
-      io.sockets.emit('points_s2c', points);      
+      console.log("Data received from ", clients[clientIdx(socket.id)]);
+      io.sockets.emit('serverToClient', points);      
    });
    
    socket.on('disconnect', function() {
