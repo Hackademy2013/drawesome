@@ -56,34 +56,31 @@ io.sockets.on('connection', function(socket) {
       count++;
       
       //update the client
-      console.log("Updating client " + client.name);
       socket.emit('sync_client', client);
       
       console.log("Client %s has joined. We now have %d artists on the server.", client.name, count);
 
       if (count > 1) {
-         socket.emit('message', {id: socket.id, text: ("Greetings, " + client.name + "! Here's who's drawing now:\n" + listClients() + ".")});
+         io.sockets.emit('message', "Greetings, " + client.name + "! Here's who's drawing right now:\n" + listClients());
       } else {
-         socket.emit('message', {id: socket.id, text: ("Greetings, " + client.name + "! You are the first person to work on this canvas.")});
+         socket.emit('message', "Greetings, " + client.name + "! You are the first person to work on this canvas.");
       }
-
-      io.sockets.emit('message', {id: socket.id, text: client.name});
    });
    
    socket.on('clientToserver', function(points) {
       //repackage and rebroadcast the points
-      // console.log("Data received from ", clients[clientIdx(socket.id)]);
       io.sockets.emit('serverToClient', {pts: points, col: clients[clientIdx(socket.id)].color});      
    });
    
    socket.on('chat', function(message) {
-      io.sockets.emit('chat_update', message);
+      io.sockets.emit('message', "> " + clients[clientIdx(socket.id)].name + ": " + message);
    });
    
    socket.on('disconnect', function() {
       var idx = clientIdx(socket.id);
       count--;
       console.log("The client \"" + clients[idx].name + "\" has left the party. A mere " + count + " users remain.");
+      io.sockets.emit('message', clients[idx].name + " abandoned you! Here's who's left:\n" + listClients());
       
       // This is probably really crappy Javascript code, sorry
       for (; idx < count; idx++) {
@@ -114,7 +111,6 @@ function hash(str) {
    for (i = 0; i < str.length; i++) {
       code = code*31 + str.charCodeAt(i);
    }
-   console.log("Generated hash %d for table of %d -> index = %d", code, COLORS.length, code % COLORS.length);
    return code;
 }
 
