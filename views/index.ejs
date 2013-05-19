@@ -1,0 +1,23 @@
+
+<div class='title'>
+   This stuff is on the index page
+</div>
+
+<script>
+   socket.on('message', function(message) {
+   console.log("message received from %s: it says %s", message.id, message.text);
+   //if (message.origin != client.id)
+      alert(message.text);
+   
+   alert("HEY! YOUR ID IS: " + client.id + "\n" +
+         "Your color is :  " + client.color.r + client.color.g + client.color.b);
+   });
+
+   socket.on('sync_client', function(info) {
+      console.log("Updating with info from server");
+      client.id = info.id;
+      client.color = info.color;
+   });
+
+   socket.on('points_s2c')
+</script>

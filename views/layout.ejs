@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Drawesome</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <script src="./socket.io/socket.io.js"></script>
+    <script src="http://code.jquery.com/jquery-1.6.2.min.js'"></script>
+    <script>
+     var socket = io.connect('http://localhost:3000');
+     
+     var client = {
+       id: "",
+       name: prompt("Type your name:"),
+       color: null
+     }
+     
+     if (client.name == '')
+       client.name = 'Anonymous Coward';
+     
+       socket.on('connect', function () {
+         socket.emit('client_connected', client);
+    </script>
+  </head>
+  <body>
+    <%- body %>
+
+  </body>
+      
+</html>
+
