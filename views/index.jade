@@ -16,11 +16,13 @@ h1 Drawesome!
             alert(message.text);
          
          alert("HEY! YOUR ID IS: " + client.id + "\n" +
-               "Your color is : "  + client.color.r + client.color.g + client.color.b);
+               "Your color is :  " + client.color.r + client.color.g + client.color.b);
      });
 
      socket.on('sync_client', function(info) {
-         console.log("Updating with info from server");
+       console.log("Updating with info from server");
        client.id = info.id;
        client.color = info.color;
      });
+     
+     socket.on('points_s2c')
