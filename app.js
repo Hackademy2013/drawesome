@@ -21,6 +21,13 @@ io.set('log level', 1); // Turn off annoying polling
 app.configure(function() {
    app.set('views', __dirname + '/views');
    app.set('view engine', 'jade');
+   app.set('view options', { locals: { scripts: ['jquery.js'] } } );
+   
+   app.dynamicHelpers( {
+      scripts: function(req, res){
+         return ['jquery.js'];
+      }
+   });
    app.use(express.bodyParser());
    app.use(express.methodOverride());
    app.use(app.router);

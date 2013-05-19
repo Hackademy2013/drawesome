@@ -1,18 +1,32 @@
-//Capture canvas element, this to reference html file? or //document?
-var canvasElem;
+//Client-side code for traceing, captureing, submitting, and drawing
+
+//Constants
+var NEGLIGIBLE_MOVEMENT = 7;
+//var SUBMIT_DELAY = 2000;
+
+//Local Canvas Variables
+var canvasElem; 
 var canvasContext;
 var traceable = false;
 var drawing = false;
-var traceQueue = new Array();
-var NEGLIGIBLE_MOVEMENT = 15;
-var SUBMIT_DELAY = 2;
+//Local information
+var myID, myColor;
+var myTraceQueue = new Array();
+//Artist's Information sent over from server
+var fellowArtists = new Array();
+
+//Time Variables
+var firstTime = diffTime = lastTime = 0;
+
+
 
 jQuery(document).ready(function(){
   //canvasElem = $('#drawesomeCanvas');
   canvasElem = document.getElementById("drawesomeCanvas");
   canvasContext = canvasElem.getContext("2d");
+  firstTime = $.now();
   
-  //Check if referenceing the canvas
+  //Check if referencing the canvas
   if(canvasElem.length > 0) {
     alert('woohoo');
 	}
@@ -42,55 +56,99 @@ jQuery(document).ready(function(){
   });
 });
     
-function recordMouseCoord(mouse, cElement)
-{
-  if(traceable && drawing)
-  {
+function recordMouseCoord(mouse) {
+  if(traceable && drawing) {
     //Looking for upper then lower bounds of X then Y of what to record
-	//This is to keep the queue with only pertinent coordinates and not every small movement of the mouse. 
-	//negligableMovement is defined as const at top
-	if(traceQueue.length == 0) {
-	  traceQueue.push({X: mouse.pageX, Y: mouse.pageY});
-	}
-    else if(mouse.pageX >= (traceQueue[traceQueue.length-1].X + NEGLIGIBLE_MOVEMENT) ) { 
-      traceQueue.push({X: mouse.pageX, Y: mouse.pageY});
-	}
-	else if(mouse.pageX <= (traceQueue[traceQueue.length-1].X - NEGLIGIBLE_MOVEMENT) ) {
-	  traceQueue.push({X: mouse.pageX, Y: mouse.pageY});
-	}
-	else if(mouse.pageY >= (traceQueue[traceQueue.length-1].Y + NEGLIGIBLE_MOVEMENT) ) { 
-      traceQueue.push({X: mouse.pageX, Y: mouse.pageY});
-	}
-	else if(mouse.pageY <= (traceQueue[traceQueue.length-1].Y - NEGLIGIBLE_MOVEMENT) ) {
-	  traceQueue.push({X: mouse.pageX, Y: mouse.pageY});
-	}
-	
-	if(traceQueue.length >= 2)
+    //This is to keep the queue with only pertinent coordinates and not every small movement of the mouse. 
+    //negligableMovement is defined as const at top
+    if(myTraceQueue.length == 0) { //check if empty first
+      myTraceQueue.push({X: mouse.pageX, Y: mouse.pageY});
+    }
+    else if(mouse.pageX >= (myTraceQueue[myTraceQueue.length-1].X + NEGLIGIBLE_MOVEMENT) ) { 
+      myTraceQueue.push({X: mouse.pageX, Y: mouse.pageY});
+    }
+    else if(mouse.pageX <= (myTraceQueue[myTraceQueue.length-1].X - NEGLIGIBLE_MOVEMENT) ) {
+      myTraceQueue.push({X: mouse.pageX, Y: mouse.pageY});
+    }
+    else if(mouse.pageY >= (myTraceQueue[myTraceQueue.length-1].Y + NEGLIGIBLE_MOVEMENT) ) { 
+      myTraceQueue.push({X: mouse.pageX, Y: mouse.pageY});
+    }
+    else if(mouse.pageY <= (myTraceQueue[myTraceQueue.length-1].Y - NEGLIGIBLE_MOVEMENT) ) {
+      myTraceQueue.push({X: mouse.pageX, Y: mouse.pageY});
+    }
+    
+    drawSubmitTrace();
+  }
+}
+
+function drawSubmitTrace() {
+	if(myTraceQueue.length >= 2)
 	{
-	  canvasContext.moveTo(traceQueue[0].X, traceQueue[0].Y);
-	  console.log("Moving to: " + traceQueue[0].X + ", " + traceQueue[0].Y);
-	  canvasContext.lineTo(traceQueue[1].X, traceQueue[1].Y);
-	  console.log("Lining to: " + traceQueue[1].X + ", " + traceQueue[1].Y);
+    //canvasContext.strokeStyle = myColor;
+	  canvasContext.moveTo(myTraceQueue[0].X, myTraceQueue[0].Y);
+	  console.log("Moving to: " + myTraceQueue[0].X + ", " + myTraceQueue[0].Y);
+	  canvasContext.lineTo(myTraceQueue[1].X, myTraceQueue[1].Y);
+	  console.log("Lining to: " + myTraceQueue[1].X + ", " + myTraceQueue[1].Y);
 	  canvasContext.stroke();
-	  var lastLocalRemoved = traceQueue.shift();
+    
+    //Submit traceQueue[0] to server
+    socket.emit('points_c2s', myTraceQueue[0]);
+    
+	  var lastLocalRemoved = myTraceQueue.shift();
 	}
     //console.log(traceQueue[traceQueue.length-1]);
 	//console.log(mouse.pageX + " " + mouse.pageY);
 	//console.log("X: Min: " +(traceQueue[traceQueue.length-1].X - NEGLIGIBLE_MOVEMENT) + " Max: " + (traceQueue[traceQueue.length-1].X + NEGLIGIBLE_MOVEMENT));
 	//console.log("Y: Min: " +(traceQueue[traceQueue.length-1].Y - NEGLIGIBLE_MOVEMENT) + " Max: " + (traceQueue[traceQueue.length-1].Y + NEGLIGIBLE_MOVEMENT));
-	//console.log(traceQueue.length);
-  }
-	
+	//console.log(traceQueue.length);	
 }
 
-//function receiveTraceFromServer(ID, traceQueue)
-//each ID has it's own traceQueue
+//Capture the ID and Color info from the server
+function getThisClientInfo(ID, color) {
+  myID = ID;
+  myColor = color;  
+}
+//Capture TraceQueue chunks from server, if there is a match then concat the arrays
+//if there is not a match, add it to the array under the new ID
+function receiveTraceFromServer(ID, color, newTraceQueue) {
+  var found = false; 
+  if(ID != myID) //Make sure the array isn't storing this client's traceQueues
+  {
+    if(fellowArtists.length > 0) { 
+      fellowArtists.forEach( function(artist, index, array)  {
+        found = false;
+        if(artist.ID == ID) { //This should read array[index].ID
+          artist.TraceQueue = artist.TraceQueue.concat(newTraceQueue);
+          found = true;
+        }
+      });
+      if(found == false) {
+        fellowArtists.Add({ID: ID, Color: color, TraceQueue: traceQueue});
+      }
+    }
+    else {
+      fellowArtists.Add({ID: ID, Color: color, TraceQueue: traceQueue});  
+    }
+  }      
+  drawTraceFromServer();
+}
 //drawTraceFromServer
+//context.strokeStyle = '#ff0000';
 
-//function drawTraceFromServer
-//foreach draw lines from first point to each sequential point
-//shift used points
-
+//Draw the captured traces from the server,
+// shifting the drawn points off each respective artist's TraceQueue
+function drawTraceFromServer() {
+  for(var i=0; i<fellowArtists.length; ++i) { //Artist loop
+    for(var j=0; j<fellowArtists[i].TraceQueue.length; ++j) { //Artist's TraceQueue loop
+      var artistColorToStyle = fellowArtists[i].Color; //This has to be hash #000000 to #ffffff
+      canvasContext.strokeStyle = artistColorToStyle;
+      canvasContext.moveTo(fellowArtists[i].TraceQueue[0].X, fellowArtists[i].TraceQueue[0].Y); //Watch out for shortening the length
+      canvasContext.lineTo(fellowArtists[i].TraceQueue[1].X, fellowArtists[i].TraceQueue[1].Y);
+      canvasContext.stroke();
+      var lastPointRemoved = fellowArtists[i].TraceQueue.shift();
+    }
+  }  
+}
 
 //function submitTraceToServer //triggered by time.Events every SUBMIT_DELAY seconds
 // send mouseTrail queue to server, 
