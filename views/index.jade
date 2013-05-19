@@ -1,18 +1,6 @@
 h1 Drawesome!
 canvas(id='drawesomeCanvas',width='500',height='500',style='border:4px solid #000000;')
-  
-
    script
-     var canvas = document.createElement('canvas');
-   script(src='client.js')
-
-     function createContext(width, height) {
-        var canvas = document.createElement('canvas');
-        canvas.width=500;
-        canvas.height=300;
-        return canvas.getContext("2d");
-     };
-
      socket.on('message', function(message) {
          console.log("message received from %s: it says %s", message.id, message.text);
          //if (message.origin != client.id)
