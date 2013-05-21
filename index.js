@@ -38,7 +38,7 @@ app.get('/', function(req, res) {
 });
 
 exports.socket = function(io) {
-	channel = io.of('/drawesome');
+	var channel = io.of('/drawesome');
 
 	var clients = [];
 	var count = 0; // How many connected clients
