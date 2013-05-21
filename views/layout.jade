@@ -2,12 +2,12 @@
 html
   head
     title WELCOME TO DRAWESOME version 0.0.0.0.-1!
-    link(rel='stylesheet', href='/stylesheets/style.css')
-    script(src='./socket.io/socket.io.js')
+    link(rel='stylesheet', href='/drawesome/stylesheets/style.css')
+    script(src='/socket.io/socket.io.js')
     script(src='http://code.jquery.com/jquery-1.6.2.min.js')
     script(src='http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js')
     script
-     var socket = io.connect('http://localhost:3000');
+     var socket = io.connect(window.location.origin + '/drawesome');
      
      var client = {
        id: "",
@@ -21,6 +21,5 @@ html
        socket.on('connect', function () {
          socket.emit('client_connected', client);
      });
-     
-     
-  body!=body
+
+  block content

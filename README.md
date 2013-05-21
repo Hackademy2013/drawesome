@@ -1,5 +1,4 @@
 #DRAWesome
-Don't forget to change the ip address in views/layout.jade to the server's IP address.
 
 ##Further possibilities
 
@@ -9,3 +8,20 @@ Don't forget to change the ip address in views/layout.jade to the server's IP ad
 2: Save drawings and pull saves from db
 
 3: Flickr api to search images and open to have the user trace
+
+## Usage
+#### App
+Run:
+
+```node ./app.js```
+
+#### Module
+
+    var app = Express();
+    var server = HTTP.createServer(app);
+    var io = IO.listen(server);
+    
+    var Drawesome = require('drawesome');
+    
+    app.use('/drawesome', Drawesome.app);
+    Drawesome.socket(io);

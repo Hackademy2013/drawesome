@@ -1,247 +1,251 @@
-h1 Drawesome!
-canvas(id='drawesomeCanvas',width='500',height='500',style='border:4px solid #000000;')
-p
-   textarea(id='console',name='console',type='text',cols='60',rows='10') DRAWsome!
-p
-   input(id='text_input',size='60',value="")
-   button(onclick="sendChat()") Send
+extends layout
 
-script
-  
-  
-   //coordination with the server after connection
-   socket.on('sync_client', function(info) {
-     client.id = info.id;
-     client.color = info.color;
-   });
-   
-   //for chatting
-   function sendChat() {
-      var text_box = document.getElementById("text_input");
-      var text = text_box.value;
+block content
+  body
+    h1 Drawesome!
+    canvas(id='drawesomeCanvas',width='500',height='500',style='border:4px solid #000000;')
+    p
+       textarea(id='console',name='console',type='text',cols='60',rows='10') DRAWsome!
+    p
+       input(id='text_input',size='60',value="")
+       button(onclick="sendChat()") Send
+    
+    script
       
-      if (text != "") {
-         text_box.value = "";
-         socket.emit('chat', text)
-      }
-   }
-   
-   socket.on('message', function(message) {
-      document.getElementById("console").value += "\n" + message;
-   });
-
-   //Client-side code for tracing, captureing, submitting, and drawing
-
-   //Constants
-   var NEGLIGIBLE_MOVEMENT = 1;
-   var OFFSET_TOP = 130;
-   var OFFSET_LEFT = 60;
-   //var SUBMIT_DELAY = 2000;
-
-   //Local Canvas Variables
-   var canvasElem;
-   var canvasContext;
-   var traceable = false;
-   var drawing = false;
-   //Local information
-   var myTraceQueue = new Array();
-   //Artist's Information sent over from server
-   var fellowArtists = new Array();
-
-   //Time Variables
-   var firstTime = diffTime = lastTime = 0;
-
-
-
-   jQuery(document).ready(function(){
-     //canvasElem = $('#drawesomeCanvas');
-     canvasElem = document.getElementById("drawesomeCanvas");
-     canvasContext = canvasElem.getContext("2d");
-     firstTime = $.now();
-
-     //Check if referencing the canvas
-     if(canvasElem.length > 0) {
-       alert('woohoo');
-      }
-
-     $(document).mouseup()
-     $(canvasElem).on({
-        mouseenter: function(){ //begin to be traceable
-          traceable = true
-         // console.log("traceable!");
-        },
-        mouseleave: function() { //no longer traceable or drawing
-          traceable = false;
-         drawing = false;
-         // console.log("UNtraceable!");
-        },
-        mousedown: function() { //switch mouseDrawing off
-          drawing = true;
-         // console.log("Drawing!");
-        },
-        mouseup: function() {//switch mouseDrawing off
-          drawing = false;
-         // console.log("NotDrawing!");
-        },
-        mousemove: function(e){ //call recordMouseCoord
-          recordMouseCoord(e, canvasElem);
-        }
-     });
-   });
-
-   function recordMouseCoord(mouse) {
-     if(traceable && drawing) {
-       //Looking for upper then lower bounds of X then Y of what to record
-       //This is to keep the queue with only pertinent coordinates and not every small movement of the mouse.
-       //negligableMovement is defined as const at top
-       if(myTraceQueue.length == 0) { //check if empty first
-         myTraceQueue.push({X: mouse.pageX - OFFSET_LEFT , Y: mouse.pageY - OFFSET_TOP });
-       }
-       else if(mouse.pageX - OFFSET_LEFT >= (myTraceQueue[myTraceQueue.length-1].X + NEGLIGIBLE_MOVEMENT) ) {
-         myTraceQueue.push({X: mouse.pageX - OFFSET_LEFT , Y: mouse.pageY - OFFSET_TOP});
-       }
-       else if(mouse.pageX - OFFSET_LEFT <= (myTraceQueue[myTraceQueue.length-1].X - NEGLIGIBLE_MOVEMENT) ) {
-         myTraceQueue.push({X: mouse.pageX - OFFSET_LEFT , Y: mouse.pageY - OFFSET_TOP});
-       }
-       else if(mouse.pageY - OFFSET_TOP >= (myTraceQueue[myTraceQueue.length-1].Y + NEGLIGIBLE_MOVEMENT) ) {
-         myTraceQueue.push({X: mouse.pageX - OFFSET_LEFT , Y: mouse.pageY - OFFSET_TOP});
-       }
-       else if(mouse.pageY - OFFSET_TOP <= (myTraceQueue[myTraceQueue.length-1].Y - NEGLIGIBLE_MOVEMENT) ) {
-         myTraceQueue.push({X: mouse.pageX - OFFSET_LEFT , Y: mouse.pageY - OFFSET_TOP});
-       }
-       drawSubmitTrace();
-     }
-   }
-
-   function drawSubmitTrace() {
-      if(myTraceQueue.length >= 2)
-      {
-        canvasContext.beginPath();
-        canvasContext.strokeStyle = colorToHex(client.color);
-        canvasContext.moveTo(myTraceQueue[0].X, myTraceQueue[0].Y);
-        // console.log("Moving to: " + myTraceQueue[0].X + ", " + myTraceQueue[0].Y);
-        canvasContext.lineTo(myTraceQueue[1].X, myTraceQueue[1].Y);
-        // console.log("Lining to: " + myTraceQueue[1].X + ", " + myTraceQueue[1].Y);
-        canvasContext.stroke();
-        canvasContext.closePath();
       
-       //Submit traceQueue[0] to server
-       socket.emit('clientToserver', [myTraceQueue[0], myTraceQueue[1]]);
-
-        var lastLocalRemoved = myTraceQueue.shift();
-      }
-       //console.log(traceQueue[traceQueue.length-1]);
-      //console.log(mouse.pageX + " " + mouse.pageY);
-      //console.log("X: Min: " +(traceQueue[traceQueue.length-1].X - NEGLIGIBLE_MOVEMENT) + " Max: " + (traceQueue[traceQueue.length-1].X + NEGLIGIBLE_MOVEMENT));
-      //console.log("Y: Min: " +(traceQueue[traceQueue.length-1].Y - NEGLIGIBLE_MOVEMENT) + " Max: " + (traceQueue[traceQueue.length-1].Y + NEGLIGIBLE_MOVEMENT));
-      //console.log(traceQueue.length);
-   }
-   
-   socket.on('serverToClient', function(data) {
-      drawTrace(data.pts, data.col);
-   });
-   
-   function drawTrace(traceQueue, color) {
-      if(traceQueue.length >= 2)
-      {
-        canvasContext.beginPath();
-        canvasContext.strokeStyle = colorToHex(color);
-        canvasContext.moveTo(traceQueue[0].X, traceQueue[0].Y);
-        canvasContext.lineTo(traceQueue[1].X, traceQueue[1].Y);
-        canvasContext.stroke();
-        canvasContext.closePath();
-      }
-   }
-
-   //Capture TraceQueue chunks from server, if there is a match then concat the arrays
-   //if there is not a match, add it to the array under the new ID
-   function receiveTraceFromServer(ID, color, newTraceQueue) {
-     var found = false;
-     if(ID != client.id) //Make sure the array isn't storing this client's traceQueues
-     {
-       if(fellowArtists.length > 0) {
-         fellowArtists.forEach( function(artist, index, array)  {
-           found = false;
-           if(artist.ID == ID) { //This should read array[index].ID
-             artist.TraceQueue = artist.TraceQueue.concat(newTraceQueue);
-             found = true;
-           }
+       //coordination with the server after connection
+       socket.on('sync_client', function(info) {
+         client.id = info.id;
+         client.color = info.color;
+       });
+       
+       //for chatting
+       function sendChat() {
+          var text_box = document.getElementById("text_input");
+          var text = text_box.value;
+          
+          if (text != "") {
+             text_box.value = "";
+             socket.emit('chat', text)
+          }
+       }
+       
+       socket.on('message', function(message) {
+          document.getElementById("console").value += "\n" + message;
+       });
+    
+       //Client-side code for tracing, captureing, submitting, and drawing
+    
+       //Constants
+       var NEGLIGIBLE_MOVEMENT = 1;
+       var OFFSET_TOP = 130;
+       var OFFSET_LEFT = 60;
+       //var SUBMIT_DELAY = 2000;
+    
+       //Local Canvas Variables
+       var canvasElem;
+       var canvasContext;
+       var traceable = false;
+       var drawing = false;
+       //Local information
+       var myTraceQueue = new Array();
+       //Artist's Information sent over from server
+       var fellowArtists = new Array();
+    
+       //Time Variables
+       var firstTime = diffTime = lastTime = 0;
+    
+    
+    
+       jQuery(document).ready(function(){
+         //canvasElem = $('#drawesomeCanvas');
+         canvasElem = document.getElementById("drawesomeCanvas");
+         canvasContext = canvasElem.getContext("2d");
+         firstTime = $.now();
+    
+         //Check if referencing the canvas
+         if(canvasElem.length > 0) {
+           alert('woohoo');
+          }
+    
+         $(document).mouseup()
+         $(canvasElem).on({
+            mouseenter: function(){ //begin to be traceable
+              traceable = true
+             // console.log("traceable!");
+            },
+            mouseleave: function() { //no longer traceable or drawing
+              traceable = false;
+             drawing = false;
+             // console.log("UNtraceable!");
+            },
+            mousedown: function() { //switch mouseDrawing off
+              drawing = true;
+             // console.log("Drawing!");
+            },
+            mouseup: function() {//switch mouseDrawing off
+              drawing = false;
+             // console.log("NotDrawing!");
+            },
+            mousemove: function(e){ //call recordMouseCoord
+              recordMouseCoord(e, canvasElem);
+            }
          });
-         if(found == false) {
-           fellowArtists.Add({ID: ID, Color: color, TraceQueue: traceQueue});
+       });
+    
+       function recordMouseCoord(mouse) {
+         if(traceable && drawing) {
+           //Looking for upper then lower bounds of X then Y of what to record
+           //This is to keep the queue with only pertinent coordinates and not every small movement of the mouse.
+           //negligableMovement is defined as const at top
+           if(myTraceQueue.length == 0) { //check if empty first
+             myTraceQueue.push({X: mouse.pageX - OFFSET_LEFT , Y: mouse.pageY - OFFSET_TOP });
+           }
+           else if(mouse.pageX - OFFSET_LEFT >= (myTraceQueue[myTraceQueue.length-1].X + NEGLIGIBLE_MOVEMENT) ) {
+             myTraceQueue.push({X: mouse.pageX - OFFSET_LEFT , Y: mouse.pageY - OFFSET_TOP});
+           }
+           else if(mouse.pageX - OFFSET_LEFT <= (myTraceQueue[myTraceQueue.length-1].X - NEGLIGIBLE_MOVEMENT) ) {
+             myTraceQueue.push({X: mouse.pageX - OFFSET_LEFT , Y: mouse.pageY - OFFSET_TOP});
+           }
+           else if(mouse.pageY - OFFSET_TOP >= (myTraceQueue[myTraceQueue.length-1].Y + NEGLIGIBLE_MOVEMENT) ) {
+             myTraceQueue.push({X: mouse.pageX - OFFSET_LEFT , Y: mouse.pageY - OFFSET_TOP});
+           }
+           else if(mouse.pageY - OFFSET_TOP <= (myTraceQueue[myTraceQueue.length-1].Y - NEGLIGIBLE_MOVEMENT) ) {
+             myTraceQueue.push({X: mouse.pageX - OFFSET_LEFT , Y: mouse.pageY - OFFSET_TOP});
+           }
+           drawSubmitTrace();
          }
        }
-       else {
-         fellowArtists.Add({ID: ID, Color: color, TraceQueue: traceQueue});
+    
+       function drawSubmitTrace() {
+          if(myTraceQueue.length >= 2)
+          {
+            canvasContext.beginPath();
+            canvasContext.strokeStyle = colorToHex(client.color);
+            canvasContext.moveTo(myTraceQueue[0].X, myTraceQueue[0].Y);
+            // console.log("Moving to: " + myTraceQueue[0].X + ", " + myTraceQueue[0].Y);
+            canvasContext.lineTo(myTraceQueue[1].X, myTraceQueue[1].Y);
+            // console.log("Lining to: " + myTraceQueue[1].X + ", " + myTraceQueue[1].Y);
+            canvasContext.stroke();
+            canvasContext.closePath();
+          
+           //Submit traceQueue[0] to server
+           socket.emit('clientToserver', [myTraceQueue[0], myTraceQueue[1]]);
+    
+            var lastLocalRemoved = myTraceQueue.shift();
+          }
+           //console.log(traceQueue[traceQueue.length-1]);
+          //console.log(mouse.pageX + " " + mouse.pageY);
+          //console.log("X: Min: " +(traceQueue[traceQueue.length-1].X - NEGLIGIBLE_MOVEMENT) + " Max: " + (traceQueue[traceQueue.length-1].X + NEGLIGIBLE_MOVEMENT));
+          //console.log("Y: Min: " +(traceQueue[traceQueue.length-1].Y - NEGLIGIBLE_MOVEMENT) + " Max: " + (traceQueue[traceQueue.length-1].Y + NEGLIGIBLE_MOVEMENT));
+          //console.log(traceQueue.length);
        }
-     }
-     drawTraceFromServer();
-   }
-   //drawTraceFromServer
-   //context.strokeStyle = '#ff0000';
-
-   //Draw the captured traces from the server,
-   // shifting the drawn points off each respective artist's TraceQueue
-   function drawTraceFromServer() {
-     for(var i=0; i<fellowArtists.length; ++i) { //Artist loop
-       for(var j=0; j<fellowArtists[i].TraceQueue.length; ++j) { //Artist's TraceQueue loop
-         var artistColorToStyle = fellowArtists[i].Color; //This has to be hash #000000 to #ffffff
-         canvasContext.strokeStyle = artistColorToStyle;
-         canvasContext.moveTo(fellowArtists[i].TraceQueue[0].X, fellowArtists[i].TraceQueue[0].Y); //Watch out for shortening the length
-         canvasContext.lineTo(fellowArtists[i].TraceQueue[1].X, fellowArtists[i].TraceQueue[1].Y);
-         canvasContext.stroke();
-         var lastPointRemoved = fellowArtists[i].TraceQueue.shift();
+       
+       socket.on('serverToClient', function(data) {
+          drawTrace(data.pts, data.col);
+       });
+       
+       function drawTrace(traceQueue, color) {
+          if(traceQueue.length >= 2)
+          {
+            canvasContext.beginPath();
+            canvasContext.strokeStyle = colorToHex(color);
+            canvasContext.moveTo(traceQueue[0].X, traceQueue[0].Y);
+            canvasContext.lineTo(traceQueue[1].X, traceQueue[1].Y);
+            canvasContext.stroke();
+            canvasContext.closePath();
+          }
        }
-     }
-   }
-
-   //function submitTraceToServer //triggered by time.Events every SUBMIT_DELAY seconds
-   // send mouseTrail queue to server,
-   // pull X from top and wait Xsecs before sending again
-
-   
-   
-   
-   // UTILITIES //
-      
-   function colorToHex(col) {
-      return "#" + decToHex(col.r) + decToHex(col.g) + decToHex(col.b);
-   }
-
-   function decToHex(num) {
-      var str = "";
-      if (num == 0)
-         return "00"
-      
-      var temp = num;
-      while (temp > 0) {
-         rem = temp % 16;
-         temp = temp >> 4;
-         str = hexChar(rem) + str;
-      }
-      // console.log("I'm about to return " + str);
-      
-      if (str.length % 2 == 1)
-         return "0" + str;
-      else
-         return str;
-   }
-
-   function hexChar(digit) {
-      if (digit < 10) {
-         return digit;
-      } else if (digit == 10) {
-         return "A";
-      } else if (digit == 11) {
-         return "B";
-      } else if (digit == 12) {
-         return "C";
-      } else if (digit == 13) {
-         return "D";
-      } else if (digit == 14) {
-         return "E";
-      } else if (digit == 15) {
-         return "F";
-      } else
-         return 0;
-   }
+    
+       //Capture TraceQueue chunks from server, if there is a match then concat the arrays
+       //if there is not a match, add it to the array under the new ID
+       function receiveTraceFromServer(ID, color, newTraceQueue) {
+         var found = false;
+         if(ID != client.id) //Make sure the array isn't storing this client's traceQueues
+         {
+           if(fellowArtists.length > 0) {
+             fellowArtists.forEach( function(artist, index, array)  {
+               found = false;
+               if(artist.ID == ID) { //This should read array[index].ID
+                 artist.TraceQueue = artist.TraceQueue.concat(newTraceQueue);
+                 found = true;
+               }
+             });
+             if(found == false) {
+               fellowArtists.Add({ID: ID, Color: color, TraceQueue: traceQueue});
+             }
+           }
+           else {
+             fellowArtists.Add({ID: ID, Color: color, TraceQueue: traceQueue});
+           }
+         }
+         drawTraceFromServer();
+       }
+       //drawTraceFromServer
+       //context.strokeStyle = '#ff0000';
+    
+       //Draw the captured traces from the server,
+       // shifting the drawn points off each respective artist's TraceQueue
+       function drawTraceFromServer() {
+         for(var i=0; i<fellowArtists.length; ++i) { //Artist loop
+           for(var j=0; j<fellowArtists[i].TraceQueue.length; ++j) { //Artist's TraceQueue loop
+             var artistColorToStyle = fellowArtists[i].Color; //This has to be hash #000000 to #ffffff
+             canvasContext.strokeStyle = artistColorToStyle;
+             canvasContext.moveTo(fellowArtists[i].TraceQueue[0].X, fellowArtists[i].TraceQueue[0].Y); //Watch out for shortening the length
+             canvasContext.lineTo(fellowArtists[i].TraceQueue[1].X, fellowArtists[i].TraceQueue[1].Y);
+             canvasContext.stroke();
+             var lastPointRemoved = fellowArtists[i].TraceQueue.shift();
+           }
+         }
+       }
+    
+       //function submitTraceToServer //triggered by time.Events every SUBMIT_DELAY seconds
+       // send mouseTrail queue to server,
+       // pull X from top and wait Xsecs before sending again
+    
+       
+       
+       
+       // UTILITIES //
+          
+       function colorToHex(col) {
+          return "#" + decToHex(col.r) + decToHex(col.g) + decToHex(col.b);
+       }
+    
+       function decToHex(num) {
+          var str = "";
+          if (num == 0)
+             return "00"
+          
+          var temp = num;
+          while (temp > 0) {
+             rem = temp % 16;
+             temp = temp >> 4;
+             str = hexChar(rem) + str;
+          }
+          // console.log("I'm about to return " + str);
+          
+          if (str.length % 2 == 1)
+             return "0" + str;
+          else
+             return str;
+       }
+    
+       function hexChar(digit) {
+          if (digit < 10) {
+             return digit;
+          } else if (digit == 10) {
+             return "A";
+          } else if (digit == 11) {
+             return "B";
+          } else if (digit == 12) {
+             return "C";
+          } else if (digit == 13) {
+             return "D";
+          } else if (digit == 14) {
+             return "E";
+          } else if (digit == 15) {
+             return "F";
+          } else
+             return 0;
+       }
