@@ -47,8 +47,9 @@ exports.socket = function(io) {
 
 		socket.on('client_connected', function(client) {
 			client.id = socket.id;
-//			console.log(COLORS.length + " " + hash(client.id) % COLORS.length);
-			
+			// console.log(COLORS.length + " " + hash(client.id) %
+			// COLORS.length);
+
 			client.color = COLORS[hash(client.id) % COLORS.length];
 
 			// keep track of this client
@@ -58,7 +59,8 @@ exports.socket = function(io) {
 			// update the client
 			socket.emit('sync_client', client);
 
-//			console.log("Client %s has joined. We now have %d artists on the server.", client.name, count);
+			// console.log("Client %s has joined. We now have %d artists on the
+			// server.", client.name, count);
 
 			if (count > 1) {
 				channel.emit('message', "Greetings, " + client.name + "! Here's who's drawing right now:\n"
@@ -70,26 +72,36 @@ exports.socket = function(io) {
 		});
 
 		socket.on('clientToserver', function(points) {
-			// repackage and rebroadcast the points
-			channel.emit('serverToClient', {
-				pts : points,
-				col : clients[clientIdx(socket.id)].color
-			});
+			try {
+				// repackage and rebroadcast the points
+				channel.emit('serverToClient', {
+					pts : points,
+					col : clients[clientIdx(socket.id)].color
+				});
+			} catch (e) {
+			}
 		});
 
 		socket.on('chat', function(message) {
-			channel.emit('message', "> " + clients[clientIdx(socket.id)].name + ": " + message);
+			try {
+				channel.emit('message', "> " + clients[clientIdx(socket.id)].name + ": " + message);
+			} catch (e) {
+			}
 		});
 
 		socket.on('disconnect', function() {
 			var idx = clientIdx(socket.id);
-//			console.log(socket.id + " " + idx);
-			
-			count--;
-//			console.log("The client \"" + clients[idx].name + "\" has left the party. A mere " + count
-//					+ " users remain.");
-			channel.emit('message', clients[idx].name + " abandoned you! Here's who's left:\n" + listClients());
+			// console.log(socket.id + " " + idx);
 
+			count--;
+			// console.log("The client \"" + clients[idx].name + "\" has left
+			// the party. A mere " + count
+			// + " users remain.");
+			try {
+				channel.emit('message', clients[idx].name + " abandoned you! Here's who's left:\n" + listClients());
+			} catch(e){
+			}
+			
 			// This is probably really crappy Javascript code, sorry
 			for (; idx < count; idx++) {
 				clients[idx] = clients[idx + 1];
@@ -99,27 +111,27 @@ exports.socket = function(io) {
 
 	// Tools
 	function clientIdx(id) {
-	   for (i = 0; i < count; i++)
-	      if (clients[i].id === id)
-	         return i;
+		for (i = 0; i < count; i++)
+			if (clients[i].id === id)
+				return i;
 	}
 
 	function listClients() {
-	   str = "";
-	   for (i = 0; i < count; i++) {
-	      str += clients[i].name;
-	         if (i < count - 1) //hmm... not the most efficient way
-	            str += ", ";
-	   }
-	   return str;
+		str = "";
+		for (i = 0; i < count; i++) {
+			str += clients[i].name;
+			if (i < count - 1) // hmm... not the most efficient way
+				str += ", ";
+		}
+		return str;
 	}
 
 	function hash(str) {
-	   var code = 0;
-	   for (i = 0; i < str.length; i++) {
-	      code = code*31 + str.charCodeAt(i);
-	   }
-	   return +code;
+		var code = 0;
+		for (i = 0; i < str.length; i++) {
+			code = code * 31 + str.charCodeAt(i);
+		}
+		return +code;
 	}
 
 };
