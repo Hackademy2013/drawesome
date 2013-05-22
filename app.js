@@ -35,6 +35,9 @@ app.configure('production', function() {
    app.use(express.errorHandler()); 
 });
 
+// Logging
+app.use(Express.logger());
+
 // Routes
 app.get('/', function(req, res){
    res.render('index');
