@@ -1,11 +1,11 @@
 {
   "name": "DRAWsome",
   "version": "0.0.1",
-  "description": "DRAWesome, a super awesome collaborative drawing web app. Product from Dyn HackAdemy",
+  "description": "A super awesome collaborative drawing web app. Product from Dyn HackAdemy",
   "dependencies": {
-      "express": "3.2.x",
-      "jade" : "0.30.x",
-	  "socket.io": "0.9.x"
+    "express": "3.2.x",
+    "jade" : "0.30.x",
+    "socket.io": "0.9.x"
   },
   "repository": {
     "type" : "git",
@@ -13,8 +13,8 @@
   },
   "author": "Omega",
   "contributors" : [ {
-  	"name" : "Wyatt Hepler",
-  	"email" : "1.61803@byu.net"
+    "name" : "Wyatt Hepler",
+    "email" : "1.61803@byu.net"
   }, {
     "name" : "Kavya Nagaraja",
     "email" : "kavyabnagaraj@gmail.com"
@@ -22,5 +22,5 @@
     "name" : "James Kilian",
     "email" : "jamkilian@gmail.com"
   } ],
-  "license": "BSD"
+  "license": "MIT"
 }
